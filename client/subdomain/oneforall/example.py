@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+# coding=utf-8
+
+"""
+示例
+"""
+
+import client.subdomain.oneforall.oneforall as oneforall
+
+if __name__ == '__main__':
+    test = oneforall.OneForAll(target='github.com')
+    test.brute = True
+    test.req = False
+    test.takeover = True
+    test.run()
+    result = test.datas

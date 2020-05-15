@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>web漏洞管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/layui-v2.5.5/css/layui.css') }}" media="all">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/public.css') }}" media="all">
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+
+        <fieldset class="table-search-fieldset">
+            <legend>搜索信息</legend>
+            <div style="margin: 10px 10px 10px 10px">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">URL</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="vul_url" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">漏洞类型</label>
+                            <div class="layui-input-inline">
+                                <select name="vul_plugin" lay-verify="required" lay-search>
+                                    <option value="">直接选择或搜索选择</option>
+                                    {% for vul_plugin in vuls %}
+                                        <option value="{{ vul_plugin }}">{{ vul_plugin }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <button type="submit" class="layui-btn layui-btn-primary" lay-submit
+                                    lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-normal layui-btn-sm data-add-btn" lay-event="flag"> 批量标记</button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 批量删除
+                </button>
+            </div>
+        </script>
+        <table class="layui-hide" id="currentTable_vuls" lay-filter="currentTableFilter"></table>
+
+    </div>
+</div>
+<script src="{{ url_for('static', filename='lib/layui-v2.5.5/layui.js') }}" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'table'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table,
+            layer = layui.layer;
+
+        table.render({
+            elem: '#currentTable_vuls',
+            url: "{{ url_for('api_src_vul') }}",
+            toolbar: '#toolbarDemo',
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            cols: [[
+                {type: "checkbox", width: 50},
+                {field: 'id', width: 80, title: 'ID', sort: true},
+                {field: 'vul_subdomain', width: 250, title: '主机'},
+                {field: 'vul_plugin', width: 150, title: '漏洞类型', style: 'color: #FF5233;'},
+                {field: 'vul_flag', width: 130, title: '标记', templet: '#port_flag_tpl'},
+                {field: 'vul_url', width: 250, title: 'URL'},
+                {field: 'vul_payload', width: 200, title: 'payload'},
+                {field: 'vul_raw', width: 300, title: '请求数据'},
+                {field: 'vul_scan_name', width: 130, title: '扫描器'},
+                {field: 'vul_time', width: 250, title: '添加时间'}
+            ]],
+            limits: [10, 15, 20, 25, 50, 100],
+            limit: 20,
+            page: true,
+            skin: 'line'
+        });
+
+        // 监听搜索操作
+        form.on('submit(data-search-btn)', function (data) {
+            var result = JSON.stringify(data.field);
+
+            //执行搜索重载
+            table.reload('currentTable_vuls', {
+                page: {
+                    curr: 1
+                }
+                , where: {
+                    searchParams: result
+                }
+            }, 'data');
+
+            return false;
+        });
+
+        /**
+         * toolbar监听事件
+         */
+        table.on('toolbar(currentTableFilter)', function (obj) {
+            if (obj.event === 'flag') {
+                var checkStatus = table.checkStatus('currentTable_vuls')
+                    , data = checkStatus.data;
+                var jsonObj = {};
+                var jsonObj1 = {};
+                for (var i = 0, l = data.length; i < l; i++) {
+                    jsonObj1[i.toString()] = {"time": data[i].vul_time};
+                }
+                jsonObj['vlus'] = jsonObj1
+                layer.confirm('确定要批量标记这些吗?', function (index) {
+                    $.ajax({
+                        url: "{{ url_for('api_src_vul') }}",
+                        data: JSON.stringify(jsonObj),
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: 'json',
+                        type: 'put',
+                        success: function (result) {
+                            if (result.status_code == 200) {
+                                layer.alert('更新漏洞标记成功', {
+                                    title: '提示',
+                                    icon: 1
+                                })
+                                table.reload('currentTable_vuls');
+                            } else {
+                                layer.alert(result.msg, {
+                                    title: '提示',
+                                    icon: 2
+                                })
+                            }
+                        },
+                        error: function (e) {
+                            layer.alert(JSON.stringify(e), {title: '提示', icon: 2})
+                        }
+
+                    })
+                    return false;
+                });
+            }
+            else if (obj.event === 'delete'){
+                var checkStatus = table.checkStatus('currentTable_vuls')
+                    , data = checkStatus.data;
+                var jsonObj = {};
+                var jsonObj1 = {};
+                for (var i = 0, l = data.length; i < l; i++) {
+                    jsonObj1[i.toString()] = {"time": data[i].vul_time};
+                }
+                jsonObj['vlus'] = jsonObj1
+                layer.confirm('确定要批量删除吗?', function (index) {
+                    $.ajax({
+                        url: "{{ url_for('api_src_vul') }}",
+                        data: JSON.stringify(jsonObj),
+                        contentType: 'application/json;charset=UTF-8',
+                        dataType: 'json',
+                        type: 'delete',
+                        success: function (result) {
+                            if (result.status_code == 200) {
+                                layer.alert('删除漏洞成功', {
+                                    title: '提示',
+                                    icon: 1
+                                })
+                                table.reload('currentTable_vuls');
+                            } else {
+                                layer.alert(result.msg, {
+                                    title: '提示',
+                                    icon: 2
+                                })
+                            }
+                        },
+                        error: function (e) {
+                            layer.alert(JSON.stringify(e), {title: '提示', icon: 2})
+                        }
+
+                    })
+                    return false;
+                });
+            }
+        });
+
+
+    });
+</script>
+<script type="text/html" id="port_flag_tpl">
+    {% raw %}
+    {{#  if(d.vul_flag === false){ }}
+    <span style="color: #334CFF;">未提交</span>
+    {{#  } else { }}
+    <span style="color: #33FF5E;">已提交</span>
+    {{#  } }}
+    {% endraw %}
+</script>
+
+</body>
+</html>

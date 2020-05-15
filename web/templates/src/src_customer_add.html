@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>添加厂商</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link rel="stylesheet" href="{{ url_for('static', filename='lib/layui-v2.5.5/css/layui.css') }}" media="all">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/public.css') }}" media="all">
+		<style>
+			body {
+            background-color: #ffffff;
+        }
+    </style>
+	</head>
+	<body>
+		<div class="layui-form layuimini-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label required">厂商名</label>
+				<div class="layui-input-block">
+					<input type="text" name="cus_name" lay-verify="required" lay-reqtext="厂商名不能为空" placeholder="请输入厂商名"
+					 class="layui-input">
+					<tip>添加重复厂商名会失败</tip>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label required">厂商主页</label>
+				<div class="layui-input-block">
+					<input type="text" name="cus_home" lay-verify="required" lay-reqtext="厂商主页不能为空" placeholder="请输入厂商主页"
+					 class="layui-input">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn layui-btn-normal" lay-submit lay-filter="user_customer">确认添加</button>
+				</div>
+			</div>
+		</div>
+		<script src="{{ url_for('static', filename='lib/layui-v2.5.5/layui.js') }}" charset="utf-8"></script>
+		<script>
+			layui.use(['form'], function() {
+				var form = layui.form,
+					layer = layui.layer,
+					$ = layui.$;
+
+				//监听提交
+				form.on('submit(user_customer)', function(data) {
+					$.ajax({
+						url: "{{ url_for('api_src_customer') }}",
+						data: JSON.stringify(data.field),
+						contentType: 'application/json;charset=UTF-8',
+						dataType: 'json',
+						type: 'put',
+						success: function(result) {
+							if (result.status_code == 200) {
+								var index = layer.alert('新增厂商成功!', {
+									title: '提示',
+									icon: 1
+								}, function() {
+									parent.layui.table.reload("currentTable_customer");
+									layer.close(index);
+									var iframeIndex = parent.layer.getFrameIndex(window.name);
+									parent.layer.close(iframeIndex);
+								})
+							} else {
+								layer.alert(result.msg, {
+									title: '提示',
+									icon: 2
+								})
+							}
+						},
+                        error: function (e) {
+                    layer.alert(JSON.stringify(e), {title: '提示', icon: 2})
+                }
+					})
+					return false;
+				});
+			});
+		</script>
+	</body>
+</html>
