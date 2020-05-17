@@ -167,12 +167,13 @@ class UserManager(Resource):
                 if 'username' not in search_dict or 'phone' not in search_dict or 'email' not in search_dict:  # 查询参数有误
                     paginate = User.query.limit(20).offset(0).all()
                 else:
-                    paginate = User.query.filter(
+                    paginate1 = User.query.filter(
                         User.username.like("%" + search_dict['username'] + "%"),
                         User.phone.like("%" + search_dict['phone'] + "%"),
                         User.email.like("%" + search_dict['email'] + "%"),
-                    ).limit(key_limit).offset((key_page - 1) * key_limit).all()
-                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate)}
+                    )
+                    paginate = paginate1.limit(key_limit).offset((key_page - 1) * key_limit).all()
+                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate1.all())}
         data = []
         if paginate:
             index = (key_page - 1) * key_limit + 1

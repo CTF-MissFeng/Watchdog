@@ -67,11 +67,12 @@ class SrcCustomerAPI(Resource):
                 if 'cus_name' not in search_dict or 'cus_home' not in search_dict:  # 查询参数有误
                     paginate = SrcCustomer.query.limit(20).offset(0).all()
                 else:
-                    paginate = SrcCustomer.query.filter(
+                    paginate1 = SrcCustomer.query.filter(
                         SrcCustomer.cus_name.like("%" + search_dict['cus_name'] + "%"),
                         SrcCustomer.cus_home.like("%" + search_dict['cus_home'] + "%"),
-                    ).limit(key_limit).offset((key_page - 1) * key_limit).all()
-                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate)}
+                    )
+                    paginate = paginate1.limit(key_limit).offset((key_page - 1) * key_limit).all()
+                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate1.all())}
         data = []
         if paginate:
             index = (key_page - 1) * key_limit + 1
@@ -188,11 +189,12 @@ class SrcTaskAPI(Resource):
                 if 'task_name' not in search_dict or 'task_domain' not in search_dict:  # 查询参数有误
                     paginate = SrcTask.query.order_by(SrcTask.id.desc()).limit(20).offset(0).all()
                 else:
-                    paginate = SrcTask.query.filter(
+                    paginate1 = SrcTask.query.filter(
                         SrcTask.task_name.like("%" + search_dict['task_name'] + "%"),
                         SrcTask.task_domain.like("%" + search_dict['task_domain'] + "%"),
-                    ).order_by(SrcTask.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
-                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate)}
+                    )
+                    paginate = paginate1.order_by(SrcTask.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
+                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate1.all())}
         data = []
         if paginate:
             index = (key_page - 1) * key_limit + 1
@@ -268,13 +270,14 @@ class SrcPortAPI(Resource):
                 if 'port_name' not in search_dict or 'port_ip' not in search_dict or 'port_port' not in search_dict or 'port_service' not in search_dict:  # 查询参数有误
                     paginate = SrcPorts.query.order_by(SrcPorts.id.desc()).limit(20).offset(0).all()
                 else:
-                    paginate = SrcPorts.query.filter(
+                    paginate1 = SrcPorts.query.filter(
                         SrcPorts.port_name.like("%" + search_dict['port_name'] + "%"),
                         SrcPorts.port_ip.like("%" + search_dict['port_ip'] + "%"),
                         SrcPorts.port_port.like("%" + search_dict['port_port'] + "%"),
                         SrcPorts.port_service.like("%" + search_dict['port_service'] + "%")
-                    ).order_by(SrcPorts.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
-                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate)}
+                    )
+                    paginate = paginate1.order_by(SrcPorts.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
+                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate1.all())}
         data = []
         if paginate:
             index = (key_page - 1) * key_limit + 1
@@ -336,13 +339,14 @@ class SrcUrlAPI(Resource):
                 if 'asset_name' not in search_dict or 'asset_host' not in search_dict or 'asset_ip' not in search_dict or 'asset_banner' not in search_dict:  # 查询参数有误
                     paginate = SrcAssets.query.order_by(SrcAssets.id.desc()).limit(20).offset(0).all()
                 else:
-                    paginate = SrcAssets.query.filter(
+                    paginate1 = SrcAssets.query.filter(
                         SrcAssets.asset_name.like("%" + search_dict['asset_name'] + "%"),
                         SrcAssets.asset_host.like("%" + search_dict['asset_host'] + "%"),
                         SrcAssets.asset_ip.like("%" + search_dict['asset_ip'] + "%"),
                         SrcAssets.asset_banner.like("%" + search_dict['asset_banner'] + "%")
-                    ).order_by(SrcAssets.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
-                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate)}
+                    )
+                    paginate = paginate1.order_by(SrcAssets.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
+                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate1.all())}
         data = []
         if paginate:
             index = (key_page - 1) * key_limit + 1
@@ -429,12 +433,12 @@ class SrcVulAPI(Resource):
                 if 'vul_url' not in search_dict or 'vul_plugin' not in search_dict:  # 查询参数有误
                     paginate = SrcVul.query.order_by(SrcVul.id.desc()).limit(20).offset(0).all()
                 else:
-                    paginate = SrcVul.query.filter(
+                    paginate1 = SrcVul.query.filter(
                         SrcVul.vul_url.like("%" + search_dict['vul_url'] + "%"),
                         SrcVul.vul_plugin.like("%" + search_dict['vul_plugin'] + "%")
-                    ).order_by(SrcVul.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
-
-                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate)}
+                    )
+                    paginate = paginate1.order_by(SrcVul.id.desc()).limit(key_limit).offset((key_page - 1) * key_limit).all()
+                    jsondata = {'code': 0, 'msg': '', 'count': len(paginate1.all())}
         data = []
         if paginate:
             index = (key_page - 1) * key_limit + 1
