@@ -355,11 +355,11 @@ class SrcUrlAPI(Resource):
                 data1['id'] = index
                 data1['asset_name'] = i.asset_name
                 data1['asset_host'] = i.asset_host
-                data1['asset_title'] = i.asset_title
+                data1['asset_title'] = escape(i.asset_title)
                 data1['asset_ip'] = i.asset_ip
                 data1['asset_area'] = i.asset_area
                 data1['asset_waf'] = i.asset_waf
-                data1['asset_banner'] = i.asset_banner
+                data1['asset_banner'] = escape(i.asset_banner)
                 data1['asset_xray_flag'] = i.asset_xray_flag
                 data1['asset_burp_flag'] = i.asset_burp_flag
                 data1['asset_time'] = i.asset_time
