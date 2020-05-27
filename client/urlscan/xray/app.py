@@ -18,7 +18,7 @@ def xray_webhook():
             plugin = vuln.get('plugin', '') + '  ' + vuln.get('vuln_class', '')
             url = vuln['detail'].get('url')
             payload = vuln['detail'].get('payload', '')
-            param = vuln['detail'].get('param', '')
+            param = str(vuln['detail'].get('param', ''))
             raw = vuln['detail'].get('request', '')
             if param:
                 raws = param + '\n\n' + raw
