@@ -7,11 +7,13 @@ import json
 import time
 import datetime
 import socket
+from IPy import IP as IPyIp
 
-from client.database import session, SrcTask, SrcAssets
+from client.database import session, SrcTask, SrcAssets, SrcPorts
 from client.subdomain.oneforall.oneforall import OneForAll as OneForAll
 from client.webinfo.run import SelectIP, Check_Waf
 from client.urlscan.url_probe.urlscan_run import UrlProbe
+from client.portscan.portscan_run import PortScan
 
 class SubDomain:
 
@@ -81,13 +83,15 @@ def main():
         if not task_sql:
             time.sleep(30)
         else:
-            if task_sql.task_domain.startswith('*'):
+            if task_sql.task_domain.startswith('*'):  # 子域名扫描
                 subdomain = SubDomain(task_sql.task_domain)
                 subdomain.run()
                 dns_list = subdomain.pars_dns()
                 if dns_list:
                     WriteAssets(dns_list, task_sql.task_name)
-            else:
+            elif task_sql.task_domain.find('/'):  # IP段扫描
+                ip_main(task_sql.task_domain, task_sql)
+            else:  # 子域名或IP扫描
                 subdomain_scan(task_sql.task_domain, task_sql.task_name)
 
 def subdomain_scan(host, asset_name):
@@ -117,6 +121,46 @@ def domain_ip(subdomain):
         return None
     else:
         return ip
+
+def ip_to_string(IP_info):
+    '''将IP段解析为IP'''
+    try:
+        ip_list = IPyIp(IP_info)
+    except Exception as e:
+        print(f'IP段解析异常:{e}')
+    else:
+        ip_list1 = []
+        for ip in ip_list:
+            ip_list1.append(str(ip))
+        ip_list1.pop(0)
+        ip_list1.pop(0)
+        ip_list1.pop()
+        return ip_list1
+
+def ip_main(IP_info, task_sql):
+    '''端口探测ip段'''
+    ip_list = ip_to_string(IP_info)
+    if not ip_list:
+        return None
+    for ip_tmp in ip_list:
+        portscan = PortScan(ip_tmp)
+        port_dict, vulns_list = portscan.run()
+        if port_dict:
+            WritePosts(port_dict, task_sql, ip_tmp)
+
+def WritePosts(port_dict, assets_sql, ip):
+    '''端口扫描入库'''
+    for info in port_dict:
+        port_sql = SrcPorts(port_name=assets_sql.task_name, port_host='http://' + ip, port_ip=ip,
+                            port_port=port_dict[info]['port'], port_service=port_dict[info]['name'],
+                            port_product=port_dict[info]['product'], port_version=port_dict[info]['version'])
+        session.add(port_sql)
+        try:
+            session.commit()
+        except Exception as error:
+            session.rollback()
+            print(f'[-]端口入库异常{error}')
+    print(f'[+]端口[{ip}]入库完成')
 
 def WriteAsset(http_info, asset_name):
     asset_count = session.query(SrcAssets).filter(SrcAssets.asset_host == http_info['host']).count()

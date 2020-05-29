@@ -11,7 +11,7 @@ from loguru import logger
 
 class PortScan:
     '''端口扫描配置'''
-    shodan_api = 'xxxxxxx'
+    shodan_api = 'xxxxxx'
     # nmap程序路径地址，可指定具体路径或设置环境变量
     nmap_search_path = ('nmap', '/usr/bin/nmap', '/usr/local/bin/nmap', '/sw/bin/nmap', '/opt/local/bin/nmap')
 

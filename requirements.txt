@@ -50,3 +50,4 @@ psycopg2-binary
 shodan
 python-nmap
 pluginbase
+IPy

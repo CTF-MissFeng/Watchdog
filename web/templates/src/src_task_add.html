@@ -32,7 +32,10 @@
         <div class="layui-input-block">
 					<textarea placeholder="输入格式:
 			*.example.com  需要探测所有子域名(*号是关键)
-			xxx.example.com  直接给出子域名" rows="8" required lay-verify="required" class="layui-textarea"
+			xxx.example.com  直接给出子域名
+			8.8.8.8  扫描某个IP
+            8.8.8.0/24  扫描C段
+            " rows="8" required lay-verify="required" class="layui-textarea"
                               name="task_domain"></textarea>
             <tip>输入格式：</tip>
             <br/>
@@ -40,6 +43,9 @@
             <br/>
             <tip>xxx.example.com 直接给出子域名</tip>
             <br/>
+            <tip>8.8.8.0/24  扫描C段</tip>
+            <br/>
+            <tip>8.8.8.8  扫描某个IP</tip>
         </div>
 
     </div>
