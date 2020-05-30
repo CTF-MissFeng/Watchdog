@@ -8,6 +8,7 @@ import time
 import datetime
 import socket
 from IPy import IP as IPyIp
+import re
 
 from client.database import session, SrcTask, SrcAssets, SrcPorts
 from client.subdomain.oneforall.oneforall import OneForAll as OneForAll
@@ -91,7 +92,9 @@ def main():
                     WriteAssets(dns_list, task_sql.task_name)
             elif task_sql.task_domain.find('/') != -1:  # IP段扫描
                 ip_main(task_sql.task_domain, task_sql)
-            else:  # 子域名或IP扫描
+            elif check_ip(task_sql.task_domain):  # IP扫描
+                ip_scan(task_sql.task_domain, task_sql)
+            else:  # 子域名扫描
                 subdomain_scan(task_sql.task_domain, task_sql.task_name)
 
 def subdomain_scan(host, asset_name):
@@ -148,6 +151,14 @@ def ip_main(IP_info, task_sql):
         if port_dict:
             WritePosts(port_dict, task_sql, ip_tmp)
 
+def check_ip(ip):
+    '''检测任务是否为IP格式'''
+    p = re.compile('^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$')
+    if p.match(ip):
+        return True
+    else:
+        return False
+
 def WritePosts(port_dict, assets_sql, ip):
     '''端口扫描入库'''
     for info in port_dict:
@@ -177,6 +188,13 @@ def WriteAsset(http_info, asset_name):
         except Exception as error:
             session.rollback()
             print(f'[-]Url探测-子域名入库异常{error}')
+
+def ip_scan(ip, task_sql):
+    portscan = PortScan(ip)
+    port_dict, vulns_list = portscan.run()
+    if port_dict:
+        WritePosts(port_dict, task_sql, ip)
+
 
 if __name__ == '__main__':
     main()
