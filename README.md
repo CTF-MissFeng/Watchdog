@@ -20,7 +20,7 @@ apt install nmap  # 安装nmap
 sudo apt-get install chromium-browser  # 安装chromium浏览器
 
 # 4、安装相关Python模块
-git colne https://github.com/CTF-MissFeng/Watchdog.git
+git clone https://github.com/CTF-MissFeng/Watchdog.git
 cd Watchdog
 pip install -r requirements.txt
 
@@ -35,8 +35,7 @@ sudo -u postgres psql  # 进入psql命令行
  修改pg_hba.conf
 现在使用数据库管理工具连接postgresql数据库，应该可以连接成功。在创建一个空的src数据库
 
-# 7、下载源码
-git clone https://github.com/CTF-MissFeng/Watchdog.git
+# 7、修改项目配置文件
 vim Watchdog/web/config.py  # 修改数据库连接配置
 vim Watchdog/client/database.py  # 修改数据库连接配置
 

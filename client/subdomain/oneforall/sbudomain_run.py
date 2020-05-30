@@ -89,7 +89,7 @@ def main():
                 dns_list = subdomain.pars_dns()
                 if dns_list:
                     WriteAssets(dns_list, task_sql.task_name)
-            elif task_sql.task_domain.find('/'):  # IP段扫描
+            elif task_sql.task_domain.find('/') != -1:  # IP段扫描
                 ip_main(task_sql.task_domain, task_sql)
             else:  # 子域名或IP扫描
                 subdomain_scan(task_sql.task_domain, task_sql.task_name)
