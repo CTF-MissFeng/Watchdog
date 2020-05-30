@@ -43,7 +43,6 @@ yarl==1.4.2
 flask
 flask-mail
 Flask-SQLAlchemy
-SQLAlchemy
 Flask-RESTful
 ipip-ipdb
 psycopg2-binary

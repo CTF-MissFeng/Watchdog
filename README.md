@@ -20,6 +20,8 @@ apt install nmap  # 安装nmap
 sudo apt-get install chromium-browser  # 安装chromium浏览器
 
 # 4、安装相关Python模块
+git colne https://github.com/CTF-MissFeng/Watchdog.git
+cd Watchdog
 pip install -r requirements.txt
 
 # 5、安装并设置postgres数据库
