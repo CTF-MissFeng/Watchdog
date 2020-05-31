@@ -49,6 +49,11 @@
                 </form>
             </div>
         </fieldset>
+        <script type="text/html" id="toolbarDemo">
+            <div class="layui-btn-container">
+                <button class="layui-btn layui-btn-sm data-add-btn" lay-event="export"><i class="layui-icon layui-icon-export"></i> 导出资产 </button>
+            </div>
+        </script>
 
         <table class="layui-hide" id="currentTable_ports" lay-filter="currentTableFilter"></table>
 
@@ -105,6 +110,15 @@
             }, 'data');
 
             return false;
+        });
+
+         /**
+         * toolbar监听事件
+         */
+        table.on('toolbar(currentTable_ports)', function (obj) {
+            if (obj.event === 'export') { // 导出web资产
+						window.open("{{ url_for('api_src_port') }}" + "?id=export")
+					}
         });
 
     });

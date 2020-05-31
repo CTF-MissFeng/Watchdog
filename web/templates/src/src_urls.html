@@ -53,6 +53,7 @@
             <div class="layui-btn-container">
                 <button class="layui-btn layui-btn-sm layui-btn-danger data-delete-btn" lay-event="delete"> 批量删除
                 </button>
+                <button class="layui-btn layui-btn-sm data-add-btn" lay-event="export"><i class="layui-icon layui-icon-export"></i> 导出资产 </button>
             </div>
         </script>
         <table class="layui-hide" id="currentTable_urls" lay-filter="currentTableFilter"></table>
@@ -154,7 +155,9 @@
                     })
                     return false;
                 });
-            }
+            } else if (obj.event === 'export') { // 导出web资产
+						window.open("{{ url_for('api_src_url') }}" + "?id=export")
+					}
         });
 
     });

@@ -2,10 +2,12 @@ from flask import session, redirect, url_for, current_app
 from functools import wraps
 import threading
 import time
+from openpyxl import Workbook
+import os
 
 from web import DB, APP
 from web.utils.logs import logger
-from web.models import UserLogs, MailSetting, SrcVul
+from web.models import UserLogs, MailSetting, SrcVul, SrcAssets, SrcPorts
 from flask_mail import Message, Mail
 
 def login_required(func):
@@ -101,3 +103,31 @@ def update_config():
 #     print(f'[+]邮件监控启动')
 #     thread_mail = threading.Thread(target=Vul_SendMail, name='mail_send', args=(APP, Message))
 #     thread_mail.start()
+
+def WriteWebAssetsExcel():
+    '''导出web资产'''
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f'web资产表'
+    ws.append(['厂商名', '主机', '网页标题', 'IP', '地区', 'Waf', 'Banner', '探测时间'])
+    Assets_query = SrcAssets.query.all()
+    for assets in Assets_query:
+        ws.append([assets.asset_name, assets.asset_host, assets.asset_title, assets.asset_ip, assets.asset_area, assets.asset_waf,
+                   assets.asset_banner, assets.asset_time])
+    save_path = os.path.join(os.path.join(APP.config['UPLOAD_FOLDER'], 'tmp'), f'web资产表.xlsx')
+    wb.save(save_path)
+    return save_path
+
+def WriteWebPortExcel():
+    '''导出端口资产'''
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f'端口服务资产表'
+    ws.append(['厂商名', 'IP', '端口', '服务', '协议', '版本', '探测时间'])
+    Ports_query = SrcPorts.query.all()
+    for assets in Ports_query:
+        ws.append([assets.port_name, assets.port_ip, assets.port_port, assets.port_service, assets.port_product, assets.port_version,
+                   assets.port_time])
+    save_path = os.path.join(os.path.join(APP.config['UPLOAD_FOLDER'], 'tmp'), f'端口服务资产表.xlsx')
+    wb.save(save_path)
+    return save_path

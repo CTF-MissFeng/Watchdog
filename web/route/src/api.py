@@ -1,11 +1,12 @@
 from flask_restful import reqparse, Resource
-from flask import session, request, json, redirect, url_for, escape
-import datetime
+from flask import session, json, redirect, url_for, escape, send_file
+from urllib.parse import quote
+import os
 
 from web.utils.logs import logger
 from web.models import SrcCustomer, SrcTask, SrcPorts, SrcAssets, SrcVul
-from web import DB, APP
-from web.utils.auxiliary import addlog
+from web import DB
+from web.utils.auxiliary import addlog, WriteWebAssetsExcel, WriteWebPortExcel
 
 class SrcCustomerAPI(Resource):
     '''src 厂商管理类'''
@@ -243,11 +244,19 @@ class SrcPortAPI(Resource):
         self.parser.add_argument("page", type=int)
         self.parser.add_argument("limit", type=int)
         self.parser.add_argument("searchParams", type=str)
+        self.parser.add_argument("id", type=str)
 
     def get(self):
         if not session.get('status'):
             return redirect(url_for('html_system_login'), 302)
         args = self.parser.parse_args()
+        if args.id:
+            save_path = WriteWebPortExcel()
+            filename = quote(f'端口服务资产表.xlsx')
+            rv = send_file(save_path, as_attachment=True, attachment_filename=filename)
+            rv.headers['Content-Disposition'] += "; filename*=utf-8''{}".format(filename)
+            os.remove(save_path)
+            return rv
         key_page = args.page
         key_limit = args.limit
         key_searchParams = args.searchParams
@@ -312,11 +321,19 @@ class SrcUrlAPI(Resource):
         self.parser.add_argument("limit", type=int)
         self.parser.add_argument("searchParams", type=str)
         self.parser.add_argument("urls", type=str, location='json')
+        self.parser.add_argument("id", type=str)
 
     def get(self):
         if not session.get('status'):
             return redirect(url_for('html_system_login'), 302)
         args = self.parser.parse_args()
+        if args.id:
+            save_path = WriteWebAssetsExcel()
+            filename = quote(f'web资产表.xlsx')
+            rv = send_file(save_path, as_attachment=True, attachment_filename=filename)
+            rv.headers['Content-Disposition'] += "; filename*=utf-8''{}".format(filename)
+            os.remove(save_path)
+            return rv
         key_page = args.page
         key_limit = args.limit
         key_searchParams = args.searchParams
