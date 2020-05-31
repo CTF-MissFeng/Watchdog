@@ -115,7 +115,7 @@
          /**
          * toolbar监听事件
          */
-        table.on('toolbar(currentTable_ports)', function (obj) {
+        table.on('toolbar(currentTableFilter)', function (obj) {
             if (obj.event === 'export') { // 导出web资产
 						window.open("{{ url_for('api_src_port') }}" + "?id=export")
 					}
