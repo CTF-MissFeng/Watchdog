@@ -11,31 +11,28 @@ NUM_SCAN = 1
 def xray_webhook():
     try:
         vuln = request.json
+
     except:
         pass
     else:
-        if 'create_time' in vuln:
-            plugin = vuln.get('plugin', '') + '  ' + vuln.get('vuln_class', '')
-            url = vuln['detail'].get('url')
-            payload = vuln['detail'].get('payload', '')
-            param = str(vuln['detail'].get('param', ''))
-            raw = vuln['detail'].get('request', '')
-            if param:
-                raws = param + '\n\n' + raw
-            else:
-                raws = raw
+        if 'create_time' in str(vuln):
+            plugin = vuln['data']['plugin']
+            url = vuln['data']['detail']['addr']
+            payload = vuln['data']['detail']['payload']
+            raws = vuln['data']['detail']['snapshot'][0][0]
+
             print(f'Xray新漏洞：[{plugin}]-{url}')
             WriteVul(plugin, url, payload, raws, scan_name='xray')
         else:
-            if 'num_found_urls' in vuln:
-                num_found_urls = vuln.get('num_found_urls', 1)
-                num_scanned_urls = vuln.get('num_scanned_urls', 1)
+            if 'num_found_urls' in str(vuln):
+                num_found_urls = vuln['data']['num_found_urls']
+                num_scanned_urls = vuln['data']['num_scanned_urls']
                 pending = int(num_found_urls) - int(num_scanned_urls)
                 global NUM_SCAN
                 NUM_SCAN = pending
                 print(f'Xray当前队列[{NUM_SCAN}]')
     finally:
-        return "ok"
+        return str(NUM_SCAN)
 
 def WriteVul(plugin, url, payload, raw, scan_name):
     '''漏洞入库'''
